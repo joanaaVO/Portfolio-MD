@@ -33,7 +33,6 @@ class VarianceThreshold:
 
 
 if __name__ == '__main__':
-    from TPC1.dataset import Dataset
 
     dataset = Dataset(X=np.array([[0, 2, 0, 3],
                                   [0, 1, 4, 3],
