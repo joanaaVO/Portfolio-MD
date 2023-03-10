@@ -138,25 +138,9 @@ class Dataset:
         stats[4] = np.var(self.X[:, numerical_features], axis=0)
         return stats
 
-def test1():
-    dataset = Dataset.read(file_path="./datasets/iris.csv", label="class")
+if __name__ == '__main__':
 
-    print("Describe:")
-    print(dataset.describe())
-    print("Median:")
-    print(dataset.get_median())
-    print("Classes:")
-    print(dataset.get_classes())
-    print("Max:")
-    print(dataset.get_max())
-    print("Min:")
-    print(dataset.get_min())
-    print("NULLS:")
-    print(dataset.get_null_values())
-    print("Shape")
-    print(dataset.get_shape())
-
-def test2():
+    #dataset = Dataset.read(file_path="./datasets/iris.csv", label="class")
     dataset = Dataset.read("./datasets/titanic.csv", label="Survived")
 
     print("Describe:")
@@ -174,5 +158,4 @@ def test2():
     print("Shape")
     print(dataset.get_shape())
 
-#test1()
-test2()
+
