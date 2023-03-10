@@ -139,7 +139,7 @@ class Dataset:
         return stats
 
 def test1():
-    dataset = Dataset.read(file_path="../datasets/iris.csv", label="class")
+    dataset = Dataset.read(file_path="./datasets/iris.csv", label="class")
 
     print("Describe:")
     print(dataset.describe())
@@ -157,7 +157,7 @@ def test1():
     print(dataset.get_shape())
 
 def test2():
-    dataset = Dataset.read("../datasets/titanic.csv", label="Survived")
+    dataset = Dataset.read("./datasets/titanic.csv", label="Survived")
 
     print("Describe:")
     print(dataset.describe())

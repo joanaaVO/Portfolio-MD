@@ -1,8 +1,11 @@
 import numpy as np
 
-from TPC1.dataset import Dataset
-from TPC2.f_classif import F_Classif
-from TPC2.f_regression import F_Regression
+import sys
+sys.path.append('./TPC1')
+
+from dataset import Dataset
+from f_classif import F_Classif
+from f_regression import F_Regression
 
 class SelectKBest:
 

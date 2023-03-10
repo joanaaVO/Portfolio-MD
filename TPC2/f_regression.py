@@ -1,6 +1,9 @@
 import numpy as np
 
-from TPC1.dataset import Dataset
+import sys
+sys.path.append('./TPC1')
+
+from dataset import Dataset
 
 class F_Regression:
 
