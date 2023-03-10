@@ -35,7 +35,7 @@ class Dataset:
                 self.categories[features[i]] = categories
     
     #Read a file and returns the Dataset(X, y, features, label)
-    def read(self, file_path: str, label: str = None):
+    def read(file_path: str, label: str = None):
         data = np.genfromtxt(file_path, delimiter=',', skip_header=1, dtype='str')
         features = np.genfromtxt(file_path, delimiter=',', max_rows=1, dtype='str')
         
@@ -139,7 +139,7 @@ class Dataset:
         return stats
 
 def test1():
-    dataset = Dataset.read("datatsets/iris.csv", label="class")
+    dataset = Dataset.read(file_path="../datasets/iris.csv", label="class")
 
     print("Describe:")
     print(dataset.describe())
@@ -157,7 +157,7 @@ def test1():
     print(dataset.get_shape())
 
 def test2():
-    dataset = Dataset.read("datasets/titanic.csv", label="Survived")
+    dataset = Dataset.read("../datasets/titanic.csv", label="Survived")
 
     print("Describe:")
     print(dataset.describe())
@@ -174,5 +174,5 @@ def test2():
     print("Shape")
     print(dataset.get_shape())
 
-test1()
-#test2()
+#test1()
+test2()
