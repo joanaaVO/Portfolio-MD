@@ -7,7 +7,7 @@ sys.path.append('./TPC1')
 
 from dataset import Dataset
 
-class FRegression:
+class F_Regression:
 
     def __init__(self, alpha: float = 0.05):
 
@@ -21,7 +21,7 @@ class FRegression:
         self.fvalues = None
         self.pvalues = None
 
-    def fit(self, dataset: Dataset) -> 'FRegression':
+    def fit(self, dataset: Dataset) -> 'F_Regression':
 
         X = dataset.X
         y = dataset.y
@@ -42,8 +42,6 @@ class FRegression:
             df_res = len(y) - 2
             self.fvalues[i] = (SSTO - SSE) / df_reg / (SSE / df_res)
             self.pvalues[i] = 1 - f.cdf(self.fvalues[i], df_reg, df_res)
-            print('p-values:', self.pvalues)
-
         return self
 
     def transform(self, dataset: Dataset) -> Dataset:
@@ -73,7 +71,7 @@ if __name__ == '__main__':
                       features=["f1", "f2", "f3", "f4"],
                       label="y")
 
-    selector = FRegression()
+    selector = F_Regression()
     selector = selector.fit(dataset)
     dataset = selector.transform(dataset)
     print(dataset.features)

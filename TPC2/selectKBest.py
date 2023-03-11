@@ -23,9 +23,9 @@ class SelectKBest:
         self.pvalues = None
 
     def fit(self, dataset: Dataset) -> 'SelectKBest':
-        scores, pvalues = self.score_func(dataset.X, dataset.y)
-        self.scores = scores
-        self.pvalues = pvalues
+        score_func_fit = self.score_func.fit(dataset) # Fit score function to dataset
+        self.scores = score_func_fit.fvalues # Extract fvalues from fitted score function
+        self.pvalues = score_func_fit.pvalues # Extract pvalues from fitted score function
         return self
 
     def transform(self, dataset: Dataset) -> Dataset:
@@ -52,12 +52,10 @@ if __name__ == '__main__':
                       features=["f1", "f2", "f3", "f4"],
                       label="y")
 
-    f_classif = F_Classif()
-    selector = SelectKBest(score_func=f_classif, k=2)
-    #f_regression = F_Regression()
-    # selector = SelectKBest(score_func=f_regression, k=2)
+    #f_classif = F_Classif()
+    #selector = SelectKBest(score_func=f_classif, k=2)
+    f_regression = F_Regression()
+    selector = SelectKBest(score_func=f_regression, k=2)
     selector = selector.fit(dataset)
     dataset = selector.transform(dataset)
     print(dataset.features)
-
-
