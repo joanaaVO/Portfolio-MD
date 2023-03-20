@@ -5,17 +5,17 @@ sys.path.append('./TPC1')
 
 from dataset import Dataset 
 from sklearn.metrics import accuracy_score
-from sklearn.model_selection import train_test_split
    
 class Node:
 
     """Base class for nodes in a decision tree."""
-    def __init__(self, feature=None, threshold=None, left=None, right=None):
+    def __init__(self, feature=None, threshold=None, left=None, right=None, data=None):
         self.feature = feature
         self.threshold = threshold
         self.left = left
         self.right = right
         self.children = []
+        self.data = data
 
     def add_child(self, child):
         self.children.append(child)
@@ -38,26 +38,17 @@ class DecisionTrees:
     def __init__(self, max_depth=None, min_samples_split=2, min_samples_leaf=1, max_features=None, 
                 criterion='gini', pre_pruning='size', post_pruning='pessimistic'):
 
-        func_map = {
-            'gini': self.gini_index,
-            'entropy': self.entropy,
-            'size': self.size_pruning,
-            'independence': self.independence_pruning,
-            'depth': self.depth_pruning,
-            'pessimistic': self.pessimistic_pruning,
-            'reduced error': self.reduced_error_pruning
-        }
-
         self.max_depth = max_depth
         self.min_samples_split = min_samples_split
         self.min_samples_leaf = min_samples_leaf
         self.max_features = max_features
-        self.criterion = func_map[criterion]
-        self.pre_pruning = func_map[pre_pruning]
-        self.post_pruning = func_map[post_pruning]
+        self.criterion = criterion
+        self.pre_pruning = pre_pruning
+        self.post_pruning = post_pruning
         self.tree = None
         self.internal_nodes = []
         self.leaf_nodes = []
+        self.root = None
 
     def predict(self, X):
         if self.tree is None:
@@ -68,7 +59,7 @@ class DecisionTrees:
     def traverse(self, x, node):
         if isinstance(node, LeafNode):
             return node.value
-        
+
         if x[node.feature] <= node.threshold:
             return self.traverse(x, node.left)
         else:
@@ -76,38 +67,51 @@ class DecisionTrees:
     
     # Building tree
     def build_tree(self, X, y, X_val, y_val, depth=0):
-        # TO-DO: Change to accept any pruning functions
+
         # Call independence pruning
         should_prune = self.independence_pruning(X_val, y_val)
 
         if should_prune:
             value = self.most_common_class(y)
             leaf = LeafNode(value)
+            leaf.data = y
             self.leaf_nodes.append(leaf)
             return leaf
             
         best_attribute, best_threshold = self.choose_attribute(X, y)
         node = InternalNode(best_attribute, best_threshold, None, None)
+        node.data = y
         self.internal_nodes.append(node)
         
-        X_left, y_left, X_right, y_right = self.split_data(X, y, best_attribute, best_threshold)
+        X_left, y_left, X_right, y_right = self.split_data(X, y, X_val, y_val, best_attribute, best_threshold)
         
         if len(X_left) == 0 or len(X_right) == 0:
             value = self.most_common_class(y)
             leaf = LeafNode(value)
+            leaf.data = y
             self.leaf_nodes.append(leaf)
             return leaf
         
         node.left = self.build_tree(X_left, y_left, X_val, y_val, depth+1)
         node.right = self.build_tree(X_right, y_right, X_val, y_val, depth+1)
+
+        # Call pruning function
+        if self.pre_pruning == 'size':
+            self.size_pruning()
+
+        elif self.pre_pruning == 'depth':
+            self.max_depth_pruning(self.tree, self.max_depth)
         
-        # TO-DO: Change to accept any pruning functions
-        node = self.post_pruning(node, X, y)
+        # TO-DO: Add the post pruning functions
+        #node = self.post_pruning(node, X, y)
+
+        if depth == 0:
+            self.root = node
             
         return node
 
     # Splits data based on feature and threshold values
-    def split_data(self, X, y, feature, threshold):
+    def split_data(self, X, y, X_val, y_val, feature, threshold):
         left_idx = X[:, feature] <= threshold
         right_idx = X[:, feature] > threshold
         
@@ -133,10 +137,10 @@ class DecisionTrees:
         self.leaf_nodes.append(right_node)
 
         # Recursively split left and right nodes
-        left_node, right_node = self.build_tree(X[left_idx], y[left_idx])
+        left_node, right_node = self.build_tree(X[left_idx], y[left_idx], X_val, y_val)
         internal_node.left = left_node
         
-        left_node, right_node = self.build_tree(X[right_idx], y[right_idx])
+        left_node, right_node = self.build_tree(X[right_idx], y[right_idx], X_val, y_val)
         internal_node.right = right_node
         
         return internal_node, None
@@ -187,14 +191,25 @@ class DecisionTrees:
     def gain_ratio(self, feature, labels):
         n = len(labels)
         values, counts = np.unique(feature, return_counts=True)
-        H = self.entropy(labels)
+        if self.criterion == 'entropy':
+            H = self.entropy(labels)
+        elif self.criterion == 'gini':
+            H = self.gini_index(labels)
+        else:
+            raise ValueError('Invalid measure specified')
+
         IV = - np.sum((counts / n) * np.log2(counts / n))
         IG = H
         for value, count in zip(values, counts):
             subset_labels = labels[feature == value]
-            IG -= (count / n) * self.entropy(subset_labels)
-        return IG / IV if IV != 0 else 0
+            if self.criterion == 'entropy':
+                IG -= (count / n) * self.entropy(subset_labels)
+            elif self.criterion == 'gini':
+                IG -= (count / n) * self.gini_index(subset_labels)
+            else:
+                raise ValueError('Invalid measure specified')
 
+        return IG / IV if IV != 0 else 0
     def independence_pruning(self, X_val, y_val):
         if self.tree is None:
             raise Exception('Decision tree not trained.')
@@ -225,10 +240,52 @@ class DecisionTrees:
         return False
 
     def size_pruning(self):
-        pass
+        if self.tree is None:
+            raise Exception('Decision tree not trained.')
+            
+        # Goes through every internal node of the tree
+        for node in self.internal_nodes:
 
-    def depth_pruning(self):
-        pass
+            # Calculates the number of samples in each child of the current node
+            left_n_samples = len(node.left.data)
+            right_n_samples = len(node.right.data)
+
+            # If both children have less than min_samples_leaf, prunes the current node
+            if left_n_samples < self.min_samples_leaf and right_n_samples < self.min_samples_leaf:
+                node.left = None
+                node.right = None
+
+        # Updates the list of internal nodes of the tree
+        self.update_internal_nodes()
+
+    # Rebuilds the list of internal nodes based on the current state of the tree
+    def update_internal_nodes(self, node=None):
+        if node is None:
+            node = self.tree
+        
+        if isinstance(node, InternalNode):
+            self.internal_nodes.append(node)
+            self.update_internal_nodes(node.left)
+            self.update_internal_nodes(node.right)
+
+    # Prunes tree nodes beyond a specified maximum depth
+    def max_depth_pruning(self, tree, max_depth):
+        if self.depth(tree.root) > max_depth:
+            tree = None
+        elif tree.left is not None:
+            tree.left = self.max_depth_pruning(tree.left, max_depth - 1)
+        elif tree.right is not None:
+            tree.right = self.max_depth_pruning(tree.right, max_depth - 1)
+        return tree
+
+    # Returns the total depth of a tree
+    def depth(self, node):
+        if isinstance(node, LeafNode):
+            return 0
+        else:
+            left_depth = self.depth(node.left)
+            right_depth = self.depth(node.right)
+            return max(left_depth, right_depth) + 1
 
     def pessimistic_pruning(self):
         pass
