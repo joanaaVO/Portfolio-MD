@@ -53,7 +53,8 @@ class Dataset:
                 X[:, i] = np.array([ind[0] if ind.size > 0 else -1 for ind in indices])
 
         if label is not None:
-            label_index = np.where(features == label)[0][0]
+            #label_index = np.where(features == label)[0][0]
+            label_index = np.where(np.isin(features, label))[0][0]
             labels = data[:, label_index]
             label_dict = {label: i for i, label in enumerate(np.unique(labels))}
             y = np.vectorize(label_dict.get)(labels).astype('int')
@@ -137,11 +138,11 @@ class Dataset:
         stats[3] = np.max(self.X[:, numerical_features], axis=0)
         stats[4] = np.var(self.X[:, numerical_features], axis=0)
         return stats
-
+"""
 if __name__ == '__main__':
 
     #dataset = Dataset.read(file_path="./datasets/iris.csv", label="class")
-    dataset = Dataset.read("./datasets/titanic.csv", label="Survived")
+    dataset = Dataset.read("./datasets/iris.csv", label="class")
 
     print("Describe:")
     print(dataset.describe())
@@ -157,5 +158,4 @@ if __name__ == '__main__':
     print(dataset.get_null_values())
     print("Shape")
     print(dataset.get_shape())
-
-
+"""

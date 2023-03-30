@@ -1,11 +1,11 @@
-import numpy as np 
-import sys
+import numpy as np
+import math
+#import sys
 
-sys.path.append('./TPC1')
+#sys.path.append('./TPC1')
 
-from dataset import Dataset 
-from sklearn.metrics import accuracy_score
-from sklearn.model_selection import train_test_split
+#from dataset import Dataset 
+
    
 class Node:
 
@@ -335,34 +335,85 @@ class DecisionTrees:
             right_depth = self.depth(node.right)
             return max(left_depth, right_depth) + 1
 
-    def pessimistic_pruning(self):
-        pass
+    #NOTE - VERIFICAR
+    def prune_pessimistic(self, X_val, y_val):
+        if self.post_pruning != 'pessimistic':
+            return
+        
+        self._pessimistic_prune_helper(self.root, X_val, y_val)
+        
+    def _pessimistic_prune_helper(self, node, X_val, y_val):
+        if node is None:
+            return
+        
+        # Prune left and right subtrees
+        self._pessimistic_prune_helper(node.left, X_val, y_val)
+        self._pessimistic_prune_helper(node.right, X_val, y_val)
+        
+        # Check if node is internal
+        if isinstance(node, InternalNode):
+            # Calculate current error rate
+            y_pred = node.predict(X_val)
+            error_rate = 1 - accuracy_score(y_val, y_pred)
+            
+            # Calculate pessimistic error rate
+            n = len(y_val)
+            z = 1.96
+            pessimistic_error = error_rate + z * math.sqrt((error_rate * (1 - error_rate) + z**2 / (4 * n)) / n)
+            
+            # Check if pessimistic error rate is lower than current error rate
+            if pessimistic_error <= error_rate:
+                # Convert node to leaf
+                value = self.most_common_class(node.data)
+                leaf = LeafNode(value)
+                leaf.data = node.data
+                node.left = None
+                node.right = None
+                self.leaf_nodes.append(leaf)
+                
+                # Remove node from internal nodes list
+                self.internal_nodes.remove(node)
+
 
     def reduced_error_pruning(self):
-        pass
-
-if __name__ == '__main__':
-    # Load the dataset using the Dataset class
-    data = Dataset.read(file_path="./datasets/iris.csv", label="class")
-
-    # Split the dataset into training and testing sets
-    X_train, X_test, y_train, y_test = train_test_split(data.X, data.y, test_size=0.2, random_state=2023)
-
-    #Set threshold to 5% of the total number of instances
-    threshold = int(0.05 * len(data.X)) 
-
-    # Create a decision tree model
-    clf = DecisionTrees(threshold=threshold)
-
-    # Train the decision tree model using the training set
-    clf.fit(X_train, y_train, X_test, y_test, depth=4)
-
-    # Evaluate the accuracy of the model using the testing set
-    y_pred = clf.predict(X_test)
-    accuracy = accuracy_score(y_test, y_pred)
-    print(f"Accuracy: {accuracy}")
-
-
-
-
-
+        # Armazena o estado atual da árvore de decisão antes da poda
+        self.backup_tree = np.copy.deepcopy(self.tree)
+        
+        # Calcula o erro na subárvore completa
+        before_pruning_error = self.test(self.data)
+        
+        # Chama a função de poda
+        self._prune(self.tree)
+        
+        # Calcula o erro após a poda
+        after_pruning_error = self.test(self.data)
+        
+        # Se o erro for maior após a poda, reverta para o backup
+        if after_pruning_error >= before_pruning_error:
+            self.tree = self.backup_tree
+        
+    def _prune(self, node):
+        # Se o nó atual for uma folha, retorne
+        if node.leaf:
+            return
+        
+        # Poda os filhos
+        for child in node.children:
+            self._prune(child)
+        
+        # Armazena o estado atual da árvore de decisão antes da poda
+        backup_children = np.copy.deepcopy(node.children)
+        
+        # Remove todos os filhos do nó atual
+        node.children = []
+        
+        # Verifica a acurácia da subárvore após a poda
+        accuracy = self.test(self.data)
+        
+        # Se a acurácia melhorar, mantém a poda
+        if accuracy > self.test(self.data, True):
+            node.leaf = True
+            node.children = None
+            return
+        else:
+            node.children = backup_children
