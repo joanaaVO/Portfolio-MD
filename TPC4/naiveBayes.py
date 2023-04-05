@@ -4,7 +4,6 @@ import sys
 sys.path.append('./TPC1')
 
 from dataset import Dataset
-from sklearn.metrics import accuracy_score
 from sklearn.model_selection import cross_val_score, train_test_split
 
 class NaiveBayes:

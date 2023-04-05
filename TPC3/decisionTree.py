@@ -36,8 +36,8 @@ class LeafNode(Node):
 
 class DecisionTrees:
     
-    def __init__(self, max_depth=None, min_samples_split=2, min_samples_leaf=1, max_features=None, 
-                criterion='gini', pre_pruning='size', post_pruning='pessimistic', threshold=None):
+    def __init__(self, max_depth=3, min_samples_split=2, min_samples_leaf=1, max_features=3, 
+                criterion='gini', pre_pruning='max_depth', post_pruning='pessimistic', threshold=5):
 
         self.max_depth = max_depth
         self.min_samples_split = min_samples_split
@@ -79,12 +79,28 @@ class DecisionTrees:
 
     # Building tree
     def build_tree(self, X, y, X_val, y_val, depth=0):
+
+
+        # Check stopping criteria
+        if depth == self.max_depth or len(X) < self.min_samples_split:
+            # Create a leaf node
+            leaf = LeafNode(self.most_common_class(y))  
+            leaf.data = y
+            return leaf if len(y) > 0 else None
         
         # Build the decision tree recursively
         best_attribute, best_threshold = self.choose_attribute(X, y)
-        node = InternalNode(best_attribute, best_threshold, None, None)
-        node.data = y
-        self.internal_nodes.append(node)
+        # Check if splitting the data will result in any improvement
+        if best_attribute is None:
+            # Create a leaf node
+            leaf = LeafNode(self.most_common_class(y))
+            leaf.data = y
+            return leaf if len(y) > 0 else None
+
+        else:
+            node = InternalNode(best_attribute, best_threshold, None, None)
+            node.data = y
+            self.internal_nodes.append(node)
 
         # Split the data based on the best attribute and threshold
         X_left, y_left, X_right, y_right = self.split_data(X, y, X_val, y_val, best_attribute, best_threshold)
@@ -93,13 +109,29 @@ class DecisionTrees:
         if len(X_left) > 0 and len(X_right) > 0:
             node.left = self.build_tree(X_left, y_left, X_val, y_val, depth+1)
             node.right = self.build_tree(X_right, y_right, X_val, y_val, depth+1)
+        else:
+            # If one of the splits is empty, create a leaf node with the majority class of the parent node
+            leaf = LeafNode(self.most_common_class(y))
+            leaf.data = y
+            self.leaf_nodes.append(leaf)
+            if len(X_left) == 0:
+                node.left = leaf
+            else:
+                node.right = leaf
+
+
+         # Check if the resulting children have too few samples
+        if len(X_left) < self.min_samples_split or len(X_right) < self.min_samples_split:
+            # Create a leaf node
+            leaf = LeafNode(self.most_common_class(y))
+            leaf.data = y
+            return leaf
 
         # Check if the internal nodes list is empty before calling independence_pruning
         if len(self.internal_nodes) > 0 and self.pre_pruning == 'independence':
             should_prune = self.independence_pruning(X_val, y_val)
             if should_prune:
-                value = self.most_common_class(y)
-                leaf = LeafNode(value)
+                leaf = LeafNode(self.most_common_class(y))
                 leaf.data = y
                 self.leaf_nodes.append(leaf)
                 return leaf
@@ -118,25 +150,21 @@ class DecisionTrees:
         left_idx = X[:, feature] <= threshold
         right_idx = X[:, feature] > threshold
 
-         # Reshape boolean arrays to match shape of y
-        left_idx = left_idx.reshape((-1,))
-        right_idx = right_idx.reshape((-1,)) 
-
         # Check if any indices are empty
-        if np.sum(left_idx) == 0 or np.sum(right_idx) == 0:
-            # Create leaf nodes with most common class in entire dataset
-            left_node = LeafNode(self.most_common_class(y))
-            right_node = LeafNode(self.most_common_class(y))
-            
-            return left_node, right_node
+        """if np.sum(left_idx) == 0 and np.sum(right_idx) != 0 :
+            return np.array([]), np.array([]), X[right_idx], y[right_idx]
+        elif np.sum(right_idx) == 0 and np.sum(left_idx) != 0:
+            return X[left_idx], y[left_idx], np.array([]), np.array([])
+        elif np.sum(left_idx) == 0 and np.sum(right_idx) == 0:
+            return np.array([]), np.array([]), np.array([]), np.array([])"""
         
         # Create left and right node based on split
         left_node = LeafNode(self.most_common_class(y[left_idx]))
         right_node = LeafNode(self.most_common_class(y[right_idx]))
 
         # Check if node is a leaf
-        if len(y[left_idx]) == 0 or len(y[right_idx]) == 0 or self.max_depth == 0 or len(X) < self.min_samples_split or len(y) < self.min_samples_split:
-            return left_node, right_node
+        #if len(y[left_idx]) == 0 or len(y[right_idx]) == 0 or self.max_depth == 0 or len(X) < self.min_samples_split or len(y) < self.min_samples_split:
+            #return left_node, right_node
             
         # Create internal node
         internal_node = InternalNode(feature, threshold, left_node, right_node)
@@ -153,7 +181,7 @@ class DecisionTrees:
         left_node, right_node = self.build_tree(X[right_idx], y[right_idx], X_val, y_val)
         internal_node.right = right_node
             
-        return internal_node, None
+        return X[left_idx], y[left_idx], X[right_idx], y[right_idx]
 
     # Returns the most commom class in 'y'
     def most_common_class(self, y):
@@ -173,7 +201,7 @@ class DecisionTrees:
 
     # Selects the best attribute to split the data based on the maximum information gain or gain ratio criterion
     def choose_attribute(self, X, y):
-        best_attribute = None
+        best_attribute = 0
         best_gain = 0
         best_threshold = 0
         for attribute in range(X.shape[1]):
@@ -193,10 +221,49 @@ class DecisionTrees:
         return entropy
     
     # Calculates the gini index
-    def gini_index(self, label):
+    """def gini_index(self, label):
+        import sys
+
+        # Open a file for writing
+        with open('debug_output.txt', 'w') as f:
+            # Redirect the stdout to the file
+            sys.stdout = f
+
+            # Your debug prints go here
+            print(label)
+            print(label.shape)
+
+        # Reset stdout to print to the console again
+        sys.stdout = sys.__stdout__
+
+        counts = np.unique(label, return_counts=True)[1]
+        proportions = counts / label.size
+        gini = 1 - np.sum(proportions ** 2)
+        return gini
+        """
+
+    """def gini_index(self, label):
+
+        if label is None or np.isscalar(label) or len(label) == 0:
+            with open('debug_output.txt', 'a') as f:
+                print(label, file=f)
+            #print("Invalid label:", label)
+            return 0
+
         counts = np.unique(label, return_counts=True)[1]
         proportions = counts / len(label)
         gini = 1 - np.sum(proportions ** 2)
+
+        return gini
+    """
+
+    def gini_index(self, labels):
+        unique, counts = np.unique(labels, return_counts=True)
+        n_instances = float(sum(counts))
+        gini = 0.0
+        for count in counts:
+            proportion = count / n_instances
+            gini += proportion * (1.0 - proportion)
         return gini
 
     # Calculates the Gain Ratio
