@@ -1,10 +1,10 @@
 import numpy as np
 import math
-#import sys
+import sys
 
-#sys.path.append('./TPC1')
+sys.path.append('./TPC1')
 
-#from dataset import Dataset 
+from dataset import Dataset 
 
    
 class Node:
@@ -149,22 +149,10 @@ class DecisionTrees:
             
         left_idx = X[:, feature] <= threshold
         right_idx = X[:, feature] > threshold
-
-        # Check if any indices are empty
-        """if np.sum(left_idx) == 0 and np.sum(right_idx) != 0 :
-            return np.array([]), np.array([]), X[right_idx], y[right_idx]
-        elif np.sum(right_idx) == 0 and np.sum(left_idx) != 0:
-            return X[left_idx], y[left_idx], np.array([]), np.array([])
-        elif np.sum(left_idx) == 0 and np.sum(right_idx) == 0:
-            return np.array([]), np.array([]), np.array([]), np.array([])"""
         
         # Create left and right node based on split
         left_node = LeafNode(self.most_common_class(y[left_idx]))
         right_node = LeafNode(self.most_common_class(y[right_idx]))
-
-        # Check if node is a leaf
-        #if len(y[left_idx]) == 0 or len(y[right_idx]) == 0 or self.max_depth == 0 or len(X) < self.min_samples_split or len(y) < self.min_samples_split:
-            #return left_node, right_node
             
         # Create internal node
         internal_node = InternalNode(feature, threshold, left_node, right_node)
@@ -221,42 +209,6 @@ class DecisionTrees:
         return entropy
     
     # Calculates the gini index
-    """def gini_index(self, label):
-        import sys
-
-        # Open a file for writing
-        with open('debug_output.txt', 'w') as f:
-            # Redirect the stdout to the file
-            sys.stdout = f
-
-            # Your debug prints go here
-            print(label)
-            print(label.shape)
-
-        # Reset stdout to print to the console again
-        sys.stdout = sys.__stdout__
-
-        counts = np.unique(label, return_counts=True)[1]
-        proportions = counts / label.size
-        gini = 1 - np.sum(proportions ** 2)
-        return gini
-        """
-
-    """def gini_index(self, label):
-
-        if label is None or np.isscalar(label) or len(label) == 0:
-            with open('debug_output.txt', 'a') as f:
-                print(label, file=f)
-            #print("Invalid label:", label)
-            return 0
-
-        counts = np.unique(label, return_counts=True)[1]
-        proportions = counts / len(label)
-        gini = 1 - np.sum(proportions ** 2)
-
-        return gini
-    """
-
     def gini_index(self, labels):
         unique, counts = np.unique(labels, return_counts=True)
         n_instances = float(sum(counts))
