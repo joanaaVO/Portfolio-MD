@@ -62,30 +62,3 @@ class Prism:
                 return rule[self.target]
         return self.default_class
 
-
-if __name__ == '__main__':
-
-    # Load the dataset using the Dataset class
-    label = 'class'
-    dataset = Dataset.read(file_path="./datasets/iris.csv", label=label)
-
-    # Convert data to a dictionary
-    data = [{attribute: value for attribute, value in zip(dataset.features, row)}
-        for row in dataset.X]
-
-    # Add target column to dictionary
-    for i in range(len(data)):
-        data[i][label] = dataset.y[i]
-
-    # Split the dataset into training and testing sets
-    train_data, test_data = train_test_split(data, test_size=0.2, random_state=2023)
-
-    # Create a PRISM object and fit it on the dataset
-    prism = Prism(train_data, label, dataset.features)
-    prism.fit()
-
-    # Use the classifier to predict the classes of the test data and calculate the accuracy of the predictions
-    correct_predictions = sum(test_data[i][label] == prism.predict(test_data[i]) for i in range(len(test_data)))
-    accuracy = correct_predictions / len(test_data)
-    print(f'Test set accuracy: {accuracy}')
-

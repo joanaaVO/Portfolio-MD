@@ -4,8 +4,9 @@ import sys
 
 sys.path.append('./TPC1')
 
-from dataset import Dataset 
 
+from dataset import Dataset 
+from sklearn.metrics import accuracy_score
    
 class Node:
 
@@ -436,3 +437,12 @@ class DecisionTrees:
             return
         else:
             node.children = backup_children
+
+    def repr(node, indent=''):
+        if node.left is None and node.right is None:
+            return f"{indent}Predict: {node.label}"
+        else:
+            decision = f"If {node.feature} <= {node.threshold}:"
+            left_tree = repr(node.left, indent + '  ')
+            right_tree = repr(node.right, indent + '  ')
+            return f"{indent}{decision}\n{left_tree}\n{indent}else:\n{right_tree}"

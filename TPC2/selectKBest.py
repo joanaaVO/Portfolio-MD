@@ -4,8 +4,6 @@ import sys
 sys.path.append('./TPC1')
 
 from dataset import Dataset
-from f_classif import F_Classif
-from f_regression import F_Regression
 
 class SelectKBest:
 
@@ -41,21 +39,3 @@ class SelectKBest:
     def fit_transform(self, dataset: Dataset) -> Dataset:
         self.fit(dataset)
         return self.transform(dataset)
-
-
-if __name__ == '__main__':
-
-    dataset = Dataset(X=np.array([[0, 2, 0, 3],
-                                  [0, 1, 4, 3],
-                                  [0, 1, 1, 3]]),
-                      y=np.array([0, 1, 0]),
-                      features=["f1", "f2", "f3", "f4"],
-                      label="y")
-
-    #f_classif = F_Classif()
-    #selector = SelectKBest(score_func=f_classif, k=2)
-    f_regression = F_Regression()
-    selector = SelectKBest(score_func=f_regression, k=2)
-    selector = selector.fit(dataset)
-    dataset = selector.transform(dataset)
-    print(dataset.features)
