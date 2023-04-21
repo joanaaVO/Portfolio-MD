@@ -61,17 +61,3 @@ class F_Regression:
     def fit_transform(self, dataset: Dataset) -> Dataset:
         self.fit(dataset)
         return self.transform(dataset)
-
-if __name__ == '__main__':
-
-    dataset = Dataset(X=np.array([[0, 2, 0, 3],
-                                  [0, 1, 4, 3],
-                                  [0, 1, 1, 3]]),
-                      y=np.array([0, 1, 0]),
-                      features=["f1", "f2", "f3", "f4"],
-                      label="y")
-
-    selector = F_Regression()
-    selector = selector.fit(dataset)
-    dataset = selector.transform(dataset)
-    print(dataset.features)
