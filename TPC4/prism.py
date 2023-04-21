@@ -62,3 +62,15 @@ class Prism:
                 return rule[self.target]
         return self.default_class
 
+    def __repr__(self):
+        rule_strings = []
+        for i, rule in enumerate(self.rules):
+            rule_string = f"Rule {i+1}: "
+            for attribute, value in rule.items():
+                rule_string += f"{attribute}={value}, "
+            rule_string += f"predict={rule[self.target]}"
+            rule_strings.append(rule_string)
+        return "\n".join(rule_strings)
+
+
+
