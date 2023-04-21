@@ -1,11 +1,26 @@
 
 class TransactionDataset:
     def __init__(self, transactions):
+        """
+        A class to represent a transaction dataset.
+
+        Parameters:
+            transactions (list): A list of transactions where each transaction is a list of items.
+
+        Attributes:
+            transactions (list): A list of transactions where each transaction is a list of items.
+            frequent_items (dict): A dictionary where each key is an item and each value is its support in the dataset.
+
+        """
         self.transactions = transactions
         self.frequent_items = {}
         self.build_frequent_items()
 
     def build_frequent_items(self):
+        """
+        A method to build frequent items for the transaction dataset.
+
+        """
         item_counts = {}
         for transaction in self.transactions:
             for item in transaction:
@@ -17,13 +32,37 @@ class TransactionDataset:
             self.frequent_items[item] = count / len(self.transactions)
     
     def __iter__(self):
+        """
+        An iterator method to iterate over the transactions.
+
+        """
         return iter(self.transactions)
 
     def __len__(self):
+        """
+        A method to get the number of transactions.
+
+        """
         return len(self.transactions)
 
 class Apriori:
     def __init__(self, transaction_dataset, min_support, min_confidence):
+        """
+        A class to represent the Apriori algorithm.
+
+        Parameters:
+            transaction_dataset (TransactionDataset): An instance of TransactionDataset class representing the transaction dataset.
+            min_support (float): The minimum support threshold for frequent itemsets.
+            min_confidence (float): The minimum confidence threshold for association rules.
+
+        Attributes:
+            transaction_dataset (TransactionDataset): An instance of TransactionDataset class representing the transaction dataset.
+            min_support (float): The minimum support threshold for frequent itemsets.
+            min_confidence (float): The minimum confidence threshold for association rules.
+            itemsets (dict): A dictionary where each key is a frequent itemset and each value is its support in the dataset.
+            rules (dict): A dictionary where each key is an association rule and each value is its confidence.
+
+        """
         self.transaction_dataset = transaction_dataset
         self.min_support = min_support
         self.min_confidence = min_confidence
@@ -31,6 +70,11 @@ class Apriori:
         self.rules = {}
 
     def fit(self):
+        """
+        A method to fit the Apriori algorithm to the transaction dataset.
+
+        """
+
         # Step 1: Get all unique items
         items = set()
         for transaction in self.transaction_dataset:
@@ -82,6 +126,19 @@ class Apriori:
         self.rules = rules
 
     def generate_candidates(self, itemsets, k):
+        """
+        Generates a list of candidate itemsets of length k based on a list of frequent itemsets.
+
+        Args:
+            itemsets (list): A list of frequent itemsets.
+            k (int): The length of the candidate itemsets to generate.
+
+        Returns:
+            set: A set of candidate itemsets of length k.
+
+        Raises:
+            None
+        """
         candidates = []
         n = len(itemsets)
         for i in range(n):
