@@ -1,8 +1,3 @@
-import sys
-
-sys.path.append('./TPC1')
-
-from dataset import Dataset
 from sklearn.model_selection import train_test_split
 
 class Prism:
@@ -137,6 +132,3 @@ class Prism:
             rule_string += f"predict={rule[self.target]}"
             rule_strings.append(rule_string)
         return "\n".join(rule_strings)
-
-
-

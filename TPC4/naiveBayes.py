@@ -116,21 +116,3 @@ class NaiveBayes:
             A dictionary containing the parameters of the NaiveBayes classifier.
         """
         return {"classes": self.classes, "mean": self.mean, "var": self.var, "priors": self.priors}
-
-if __name__ == '__main__':
-    # Load the dataset using the Dataset class
-    data = Dataset.read(file_path="./datasets/iris.csv", label="class")
-
-    # Split the dataset into training and testing sets
-    X_train, X_test, y_train, y_test = train_test_split(data.X, data.y, test_size=0.2, random_state=2023)
-
-    # Create the NaiveBayes model
-    model = NaiveBayes()
-
-    # Evaluate the model using cross-validation
-    scores = cross_val_score(model, data.X, data.y, cv=5)
-    
-    # Print the mean and standard deviation of the cross-validation scores
-    print(f"Accuracy: {scores.mean():.2f} (+/- {scores.std() * 2:.2f})")
-
-

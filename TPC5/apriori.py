@@ -149,38 +149,3 @@ class Apriori:
                     candidate = tuple(sorted(itemset1.union(itemset2)))
                     candidates.append(candidate)
         return set(candidates)
-
-if __name__ == '__main__':
-
-    transactions = [    
-    ['milk', 'bread', 'eggs'],
-    ['bread', 'sugar', 'coffee'],
-    ['bread', 'milk', 'sugar', 'coffee'],
-    ['bread', 'sugar', 'eggs'],
-    ['milk', 'sugar', 'coffee'],
-    ['milk', 'bread', 'sugar', 'coffee'],
-    ['milk', 'bread', 'sugar', 'eggs'],
-    ['milk', 'bread', 'sugar', 'coffee', 'eggs'],
-    ['bread', 'sugar', 'eggs', 'coffee'],
-    ['milk', 'sugar', 'eggs']
-    ]
-
-    min_support = 0.4
-    min_confidence = 0.5
-
-    transaction_dataset = TransactionDataset(transactions)
-
-    apriori = Apriori(transaction_dataset, min_support, min_confidence)
-    apriori.fit()
-
-    # Print frequent itemsets
-    print("Frequent itemsets:")
-    for itemset, support in apriori.itemsets.items():
-        print(f"{itemset}: {support}")
-    
-    
-    # Print association rules
-    print("\nAssociation rules:")
-    for rule, confidence in apriori.rules.items():
-        premise, conclusion = rule
-        print(f"{premise} => {conclusion}: {confidence}")

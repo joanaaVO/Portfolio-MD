@@ -1,23 +1,27 @@
 import sys
+import numpy as np
 
+sys.path.append('./datasets')
 sys.path.append('./TPC1')
 sys.path.append('./TPC2')
 sys.path.append('./TPC3')
 sys.path.append('./TPC4')
 sys.path.append('./TPC5')
-sys.path.append('./datasets')
 
-from TPC1.dataset import Dataset
-from TPC2.f_classif import F_Classif
-from TPC2.f_regression import F_Regression
-from TPC2.selectKBest import SelectKBest
-from TPC2.variance_threshold import VarianceThreshold
-from TPC3.decisionTree import DecisionTrees
-from TPC4.prism import Prism
+from dataset import Dataset
+from f_classif import F_Classif
+from f_regression import F_Regression
+from selectKBest import SelectKBest
+from variance_threshold import VarianceThreshold
+from decisionTree import DecisionTrees
+from prism import Prism
+from naiveBayes import NaiveBayes
+from apriori import Apriori
+from apriori import TransactionDataset
 
 from sklearn.metrics import accuracy_score
 from sklearn.model_selection import KFold
-import numpy as np
+
 
 def main(exercise):
     
@@ -118,10 +122,67 @@ def main(exercise):
 
         # Print the tree
         print(repr(tree))
+    
+    if exercise == "4-prism":
         
+        print("Não sei o que colocar")
+    
+    if exercise == "4-naiveBayes":
+        
+        # Load the dataset using the Dataset class
+        data = Dataset.read(file_path="./datasets/iris.csv", label="class")
+
+        # Split the dataset into training and testing sets
+        X_train, X_test, y_train, y_test = train_test_split(data.X, data.y, test_size=0.2, random_state=2023)
+
+        # Create the NaiveBayes model
+        model = NaiveBayes()
+
+        # Evaluate the model using cross-validation
+        scores = cross_val_score(model, data.X, data.y, cv=5)
+        
+        # Print the mean and standard deviation of the cross-validation scores
+        print(f"Accuracy: {scores.mean():.2f} (+/- {scores.std() * 2:.2f})")
+            
+        
+    if exercise == "5":
+
+        transactions = [    
+        ['milk', 'bread', 'eggs'],
+        ['bread', 'sugar', 'coffee'],
+        ['bread', 'milk', 'sugar', 'coffee'],
+        ['bread', 'sugar', 'eggs'],
+        ['milk', 'sugar', 'coffee'],
+        ['milk', 'bread', 'sugar', 'coffee'],
+        ['milk', 'bread', 'sugar', 'eggs'],
+        ['milk', 'bread', 'sugar', 'coffee', 'eggs'],
+        ['bread', 'sugar', 'eggs', 'coffee'],
+        ['milk', 'sugar', 'eggs']
+        ]
+
+        min_support = 0.4
+        min_confidence = 0.5
+
+        transaction_dataset = TransactionDataset(transactions)
+
+        apriori = Apriori(transaction_dataset, min_support, min_confidence)
+        apriori.fit()
+
+        # Print frequent itemsets
+        print("Frequent itemsets:")
+        for itemset, support in apriori.itemsets.items():
+            print(f"{itemset}: {support}")
+        
+        
+        # Print association rules
+        print("\nAssociation rules:")
+        for rule, confidence in apriori.rules.items():
+            premise, conclusion = rule
+            print(f"{premise} => {conclusion}: {confidence}")
+
 
 if __name__ == '__main__':
     
-    exercise = "3"
+    exercise = "4-naiveBayes"
 
     main (exercise)
