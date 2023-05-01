@@ -7,6 +7,7 @@ sys.path.append('./TPC2')
 sys.path.append('./TPC3')
 sys.path.append('./TPC4')
 sys.path.append('./TPC5')
+sys.path.append('./TPC6')
 
 from dataset import Dataset
 from f_classif import F_Classif
@@ -18,6 +19,8 @@ from prism import Prism
 from naiveBayes import NaiveBayes
 from apriori import Apriori
 from apriori import TransactionDataset
+from mlp import MLP
+from datasetMLP import DatasetMLP
 
 from sklearn.metrics import accuracy_score
 from sklearn.model_selection import KFold
@@ -133,13 +136,13 @@ def main(exercise):
         data = Dataset.read(file_path="./datasets/iris.csv", label="class")
 
         # Split the dataset into training and testing sets
-        X_train, X_test, y_train, y_test = train_test_split(data.X, data.y, test_size=0.2, random_state=2023)
+        X_train, X_test, y_train, y_test = Dataset.train_test_split(data.X, data.y, test_size=0.2, random_state=2023)
 
         # Create the NaiveBayes model
         model = NaiveBayes()
 
         # Evaluate the model using cross-validation
-        scores = cross_val_score(model, data.X, data.y, cv=5)
+        scores = Dataset.cross_val_score(model, data.X, data.y, cv=5)
         
         # Print the mean and standard deviation of the cross-validation scores
         print(f"Accuracy: {scores.mean():.2f} (+/- {scores.std() * 2:.2f})")
@@ -180,9 +183,22 @@ def main(exercise):
             premise, conclusion = rule
             print(f"{premise} => {conclusion}: {confidence}")
 
+    if exercise == "6":
+
+        ds= DatasetMLP("./datasets/xnor.csv")
+        nn = MLP(ds, 2)
+        w1 = np.array([[-30,20,20],[10,-20,-20]])
+        w2 = np.array([[-10,20,20]])
+        nn.setWeights(w1, w2)
+        print( nn.predict(np.array([0,0]) ) )
+        print( nn.predict(np.array([0,1]) ) )
+        print( nn.predict(np.array([1,0]) ) )
+        print( nn.predict(np.array([1,1]) ) )
+        print(nn.costFunction())
+
 
 if __name__ == '__main__':
     
-    exercise = "4-naiveBayes"
+    exercise = "6"
 
     main (exercise)
