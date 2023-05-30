@@ -1,5 +1,7 @@
 import sys
+import os
 import numpy as np
+import csv
 from typing import Tuple, Sequence
 sys.path.append('./datasets')
 
@@ -58,7 +60,10 @@ class Dataset:
         Returns:
             Dataset: The dataset object.
         """
-        data = np.genfromtxt(file_path, delimiter=',', skip_header=1, dtype='str')
+        if os.path.isfile(file_path) is False:
+            raise ValueError("File does not exist")
+        
+        data = np.genfromtxt(file_path, delimiter=',', skip_header=1, dtype='str') 
         features = np.genfromtxt(file_path, delimiter=',', max_rows=1, dtype='str')
         
         X = np.zeros((data.shape[0], data.shape[1]-1))
@@ -86,7 +91,7 @@ class Dataset:
 
     def write(self, file_path: str):
         """
-        Writes the dataset to a file.
+        Writes the dataset to a CSV file.
         
         Args:
             file_path (str): The path to the output file.
@@ -95,7 +100,16 @@ class Dataset:
             data = self.X
         else:
             data = np.concatenate((self.X, self.y.reshape(-1, 1)), axis=1)
-        np.savetxt(file_path, data, delimiter=',', fmt='%s')
+
+        with open(file_path, 'w', newline='') as file:
+
+            writer = csv.writer(file)
+            
+            if self.features:
+                writer.writerow(self.features)
+            
+            writer.writerows(data)
+        
         print("File written successfully!")
 
 
@@ -323,7 +337,8 @@ class Dataset:
         stats[3] = np.max(self.X[:, numerical_features], axis=0)
         stats[4] = np.var(self.X[:, numerical_features], axis=0)
         return stats
-    
+
+"""
 if __name__ == '__main__':
      file_path = "./datasets/iris.csv"
      label = "class"
@@ -344,3 +359,4 @@ if __name__ == '__main__':
      print("Describe:", dataset.describe())
      
      dataset.write("./datasets/iris_test.csv")
+"""
