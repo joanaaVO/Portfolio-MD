@@ -1,6 +1,8 @@
-from typing import Tuple, Sequence
-
+import sys
 import numpy as np
+from typing import Tuple, Sequence
+sys.path.append('./datasets')
+
 
 class Dataset:
 
@@ -34,6 +36,7 @@ class Dataset:
                 categories = self.get_categories(X, i)
                 self.categories[features[i]] = categories
     
+    
     #Read a file and returns the Dataset(X, y, features, label)
     def read(file_path: str, label: str = None):
         data = np.genfromtxt(file_path, delimiter=',', skip_header=1, dtype='str')
@@ -61,13 +64,30 @@ class Dataset:
             
         return Dataset(X, y, features, label)
 
-    #Returns the categories of the 
-    def get_categories(self, data, col_idx):
+    #write the dataset in a file
+    def write(self, file_path: str):
+        if self.y is None:
+            data = self.X
+        else:
+            data = np.concatenate((self.X, self.y.reshape(-1, 1)), axis=1)
+        np.savetxt(file_path, data, delimiter=',', fmt='%s')
+        print("File written successfully!")
+
+    #Returns the matrix X
+    def get_X(self) -> np.ndarray:
+        return self.X
+    
+    #Returns the matrix y
+    def get_y(self) -> np.ndarray:
+        return self.y
+    
+    #Returns the categories of the dataset
+    def get_categories(self, data, col_idx) -> np.ndarray:
         col = data[:, col_idx]
         uniques = np.unique(col)
-        categories = np.delete(uniques, uniques == '')
+        categories = uniques[np.vectorize(lambda x: x != '')(uniques)]
         return categories
-
+    
     # Returns the shape of the dataset
     def get_shape(self) -> Tuple[int, int]:
         return self.X.shape
@@ -84,7 +104,6 @@ class Dataset:
             raise ValueError("Dataset feature types have not been inferred")
         numerical_features = [i for i, ft in enumerate(self.feature_types) if ft == 'numerical']
         return np.nanmean(self.X[:, numerical_features], axis=0)
-
 
     # Returns the variance of each feature
     def get_variance(self) -> np.ndarray:
@@ -118,6 +137,41 @@ class Dataset:
     def get_null_values(self) -> np.ndarray:
         return np.sum(np.isnan(self.X), axis=0)
 
+            
+    def set_X(self, X):
+        self.X = X
+    
+    def set_y(self, y):
+        self.y = y
+    
+    def set_categories(self, col_idx, categories):
+        self.categories[self.features[col_idx]] = categories
+    
+    def set_shape(self, shape):
+        self.shape = shape
+
+    def set_classes(self, classes):
+        self.classes = classes
+    
+    def set_mean(self, mean):
+        self.mean = mean
+    
+    def set_variance(self, variance):
+        self.variance = variance
+    
+    def set_median(self, median):
+        self.median = median
+    
+    def set_min(self, min):
+        self.min = min
+    
+    def set_max(self, max):
+        self.max = max
+    
+    def set_null_values(self, null_values):
+        self.null_values = null_values
+    
+
     # Replaces all null values with mean
     def replace_null_values(self):
         col_mean = np.nanmean(self.X, axis=0)
@@ -136,3 +190,24 @@ class Dataset:
         stats[3] = np.max(self.X[:, numerical_features], axis=0)
         stats[4] = np.var(self.X[:, numerical_features], axis=0)
         return stats
+    
+if __name__ == '__main__':
+     file_path = "./datasets/iris.csv"
+     label = "class"
+     
+     dataset = Dataset.read(file_path = file_path, label= label)
+     
+     print("X:", dataset.get_X())
+     print("y:", dataset.get_y())
+     print("Categories:", dataset.get_categories(dataset.get_X(), 0))
+     print("Shape", dataset.get_shape())
+     print("Classes:", dataset.get_classes())
+     print("Mean:", dataset.get_mean())
+     print("Variance:", dataset.get_variance())
+     print("Median:", dataset.get_median())
+     print("Min:", dataset.get_min())
+     print("Max:", dataset.get_max())
+     print("NULLS:", dataset.get_null_values())
+     print("Describe:", dataset.describe())
+     
+     dataset.write("./datasets/iris_test.csv")
