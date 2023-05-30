@@ -2,11 +2,10 @@ import unittest
 import sys
 import numpy as np
 import pandas as pd
-from dataset import Dataset
 sys.path.append('./datasets')
+sys.path.append('./TPC1/src')
+from dataset import Dataset
 
-# Ver como resolver o X ser [] devia quebrar
-# 
 
 class DatasetTestCase(unittest.TestCase):
     
