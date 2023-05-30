@@ -6,7 +6,17 @@ sys.path.append('./datasets')
 
 class Dataset:
 
+
     def __init__(self, X: np.ndarray, y: np.ndarray = None, features: Sequence[str] = None, label: str = None):
+        """
+        Initializes the Dataset object.
+        
+        Args:
+            X (np.ndarray): The feature matrix.
+            y (np.ndarray, optional): The label array. Defaults to None.
+            features (Sequence[str], optional): The list of feature names. Defaults to None.
+            label (str, optional): The name of the label. Defaults to None.
+        """
         if X is None:
             raise ValueError("X cannot be None")
 
@@ -36,9 +46,18 @@ class Dataset:
                 categories = self.get_categories(X, i)
                 self.categories[features[i]] = categories
     
-    
-    #Read a file and returns the Dataset(X, y, features, label)
+
     def read(file_path: str, label: str = None):
+        """
+        Reads a file and returns a Dataset object.
+        
+        Args:
+            file_path (str): The path to the file.
+            label (str, optional): The name of the label. Defaults to None.
+        
+        Returns:
+            Dataset: The dataset object.
+        """
         data = np.genfromtxt(file_path, delimiter=',', skip_header=1, dtype='str')
         features = np.genfromtxt(file_path, delimiter=',', max_rows=1, dtype='str')
         
@@ -64,8 +83,14 @@ class Dataset:
             
         return Dataset(X, y, features, label)
 
-    #write the dataset in a file
+
     def write(self, file_path: str):
+        """
+        Writes the dataset to a file.
+        
+        Args:
+            file_path (str): The path to the output file.
+        """
         if self.y is None:
             data = self.X
         else:
@@ -73,112 +98,220 @@ class Dataset:
         np.savetxt(file_path, data, delimiter=',', fmt='%s')
         print("File written successfully!")
 
-    #Returns the matrix X
+
     def get_X(self) -> np.ndarray:
+        """
+        Returns the feature matrix X.
+        """
         return self.X
     
-    #Returns the matrix y
+
     def get_y(self) -> np.ndarray:
+        """
+        Returns the feature matrix y.
+        """
         return self.y
     
-    #Returns the categories of the dataset
+    
     def get_categories(self, data, col_idx) -> np.ndarray:
+        """
+        Args:
+            data (np.ndarray): dataset
+            col_idx (int): column index
+
+        Returns:
+            np.ndarray: categories of the dataset
+        """
         col = data[:, col_idx]
         uniques = np.unique(col)
         categories = uniques[np.vectorize(lambda x: x != '')(uniques)]
         return categories
     
-    # Returns the shape of the dataset
+
     def get_shape(self) -> Tuple[int, int]:
+        """
+        Returns:
+            Tuple[int, int]: shape of the dataset
+        """
         return self.X.shape
 
-    # Returns the unique classes in the dataset
+
     def get_classes(self) -> np.ndarray:
+        """
+        Returns:
+            np.ndarray: unique classes in the dataset
+        """
         if self.y is None:
             raise ValueError("Dataset does not have a label")
         return np.unique(self.y)
 
-    # Returns the mean of each feature
+
     def get_mean(self) -> np.ndarray:
+        """
+        Returns:
+            np.ndarray: mean of each feature
+        """
         if len(self.feature_types) == 0:
             raise ValueError("Dataset feature types have not been inferred")
         numerical_features = [i for i, ft in enumerate(self.feature_types) if ft == 'numerical']
         return np.nanmean(self.X[:, numerical_features], axis=0)
 
-    # Returns the variance of each feature
+
     def get_variance(self) -> np.ndarray:
+        """
+        Returns:
+            np.ndarray: variance of each feature
+        """
+        
         if len(self.feature_types) == 0:
             raise ValueError("Dataset feature types have not been inferred")
         numerical_features = [i for i, ft in enumerate(self.feature_types) if ft == 'numerical']
         return np.nanvar(self.X[:, numerical_features], axis=0)
 
-    # Returns the median of each feature
+
     def get_median(self) -> np.ndarray:
+        """
+        Returns:
+            np.ndarray: median of each feature
+        """
         if len(self.feature_types) == 0:
             raise ValueError("Dataset feature types have not been inferred")
         numerical_features = [i for i, ft in enumerate(self.feature_types) if ft == 'numerical']
         return np.nanmedian(self.X[:, numerical_features], axis=0)
 
-    # Returns the minimum of each feature
+
     def get_min(self) -> np.ndarray:
+        """
+        Returns:
+            np.ndarray: minimum of each feature
+        """
         if len(self.feature_types) == 0:
             raise ValueError("Dataset feature types have not been inferred")
         numerical_features = [i for i, ft in enumerate(self.feature_types) if ft == 'numerical']
         return np.nanmin(self.X[:, numerical_features], axis=0)
 
-    # Returns the maximum of each feature
+
     def get_max(self) -> np.ndarray:
+        """
+        Returns:
+            np.ndarray: maximum of each feature
+        """
         if len(self.feature_types) == 0:
             raise ValueError("Dataset feature types have not been inferred")
         numerical_features = [i for i, ft in enumerate(self.feature_types) if ft == 'numerical']
         return np.nanmax(self.X[:, numerical_features], axis=0)
 
-    # Returns the number of null values of each feature
+
     def get_null_values(self) -> np.ndarray:
+        """
+        Returns:
+            np.ndarray: number of null values of each feature
+        """
         return np.sum(np.isnan(self.X), axis=0)
 
             
     def set_X(self, X):
+        """
+        Args:
+            X: feature matrix
+        """
         self.X = X
     
+    
     def set_y(self, y):
+        """
+        Args:
+            y: label matrix
+        """
         self.y = y
     
+    
     def set_categories(self, col_idx, categories):
+        """
+        Args:
+            col_idx (int): the index of the column
+            categories (np.ndarray): the array of categories
+        """
         self.categories[self.features[col_idx]] = categories
     
+    
     def set_shape(self, shape):
+        """
+        Args:
+            shape (Tuple[int, int]): the shape of the dataset as a tuple (n_rows, n_columns)
+        """
         self.shape = shape
 
+
     def set_classes(self, classes):
+        """
+        Args:
+            classes (np.ndarray): the array of classes
+        """
         self.classes = classes
     
+    
     def set_mean(self, mean):
+        """
+        Args:
+            mean (np.ndarray): the array of means
+        """
         self.mean = mean
     
+    
     def set_variance(self, variance):
+        """
+        Args:
+            variance (np.ndarray): the array of variances
+        """
         self.variance = variance
     
+    
     def set_median(self, median):
+        """
+        Args:
+            median (np.ndarray): the array of medians
+        """
         self.median = median
     
+    
     def set_min(self, min):
+        """
+        Args:
+            min (np.ndarray): the array of minimums
+        """
         self.min = min
     
+    
     def set_max(self, max):
+        """
+        Args:
+            max (np.ndarray): the array of maximums
+        """
         self.max = max
     
+    
     def set_null_values(self, null_values):
+        """
+        Args:
+            null_values (np.ndarray): the array of null values
+        """
         self.null_values = null_values
     
 
-    # Replaces all null values with mean
     def replace_null_values(self):
+        """
+        Replaces all null values with mean
+        """
         col_mean = np.nanmean(self.X, axis=0)
         self.X = np.nan_to_num(self.X, nan=col_mean)
     
-    # Returns a description of the dataset
+
     def describe(self) -> np.ndarray:
+        """
+        Returns:
+            np.ndarray: a description of the dataset
+        """
         if len(self.feature_types) == 0:
             raise ValueError("Dataset feature types have not been inferred")
         numerical_features = [i for i, ft in enumerate(self.feature_types) if ft == 'numerical']
