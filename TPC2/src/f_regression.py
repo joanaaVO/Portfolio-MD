@@ -5,12 +5,18 @@ from sklearn.linear_model import LinearRegression
 import sys
 sys.path.append('./TPC1')
 
-from dataset import Dataset
+from src.dataset import Dataset
 
 class F_Regression:
 
     def __init__(self, alpha: float = 0.05):
+        """
+        Initializes the F_Regression object.
 
+        Args:
+        - alpha: significance level for hypothesis testing (default: 0.05)
+        """
+        
         if alpha < 0 or alpha > 1:
             raise ValueError("alpha must be between 0 and 1")
 
@@ -22,7 +28,15 @@ class F_Regression:
         self.pvalues = None
 
     def fit(self, dataset: Dataset) -> 'F_Regression':
+        """
+        Fit the F-test model to the dataset.
 
+        Args:
+        - dataset: Dataset object containing the input features and labels.
+
+        Returns:
+        - self: F_Regression object.
+        """
         X = dataset.X
         y = dataset.y
 
@@ -45,7 +59,15 @@ class F_Regression:
         return self
 
     def transform(self, dataset: Dataset) -> Dataset:
+        """
+        Transforms the input dataset by selecting features based on p-values.
 
+        Args:
+        - dataset: Dataset object containing the input features and labels.
+
+        Returns:
+        - Transformed Dataset object with selected features.
+        """
         X = dataset.X
 
         # Select features with p-value < alpha
