@@ -1,7 +1,7 @@
 import numpy as np
 import sys
 
-sys.path.append('./TPC1')
+sys.path.append('./TPC1/src')
 
 from dataset import Dataset
 from sklearn.model_selection import cross_val_score, train_test_split
@@ -35,7 +35,6 @@ class NaiveBayes:
         n_samples, n_features = X.shape
         self.classes = np.unique(y)
         n_classes = len(self.classes)
-
         # Initialize the parameters of the model
         self.mean = np.zeros((n_classes, n_features))
         self.var = np.zeros((n_classes, n_features))

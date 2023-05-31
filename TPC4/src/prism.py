@@ -68,9 +68,9 @@ class Prism:
         covered_data = [d for d in self.data if self.rule_covers(rule, d)]
         if not covered_data:
             return 0.0
-        
         correct_predictions = sum(d[self.target] == self.predict(d) for d in covered_data)
         return correct_predictions / len(covered_data)
+
 
     def rule_covers(self, rule, data):
         """
