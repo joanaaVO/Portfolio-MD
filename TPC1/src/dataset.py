@@ -338,7 +338,6 @@ class Dataset:
         stats[4] = np.var(self.X[:, numerical_features], axis=0)
         return stats
 
-"""
 if __name__ == '__main__':
      file_path = "./datasets/iris.csv"
      label = "class"
@@ -357,6 +356,3 @@ if __name__ == '__main__':
      print("Max:", dataset.get_max())
      print("NULLS:", dataset.get_null_values())
      print("Describe:", dataset.describe())
-     
-     dataset.write("./datasets/iris_test.csv")
-"""
