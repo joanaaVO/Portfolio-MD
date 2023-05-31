@@ -50,12 +50,14 @@ class DecisionTree2Test(unittest.TestCase):
         root = dt.build_tree(X, y)
         self.assertEqual(root.label, 1)
         
+        
     def test_build_tree_when_len_of_y_is_0(self):
         dt = DecisionTree(pre_pruning='size')
         X = np.array([[1], [2], [3], [4]])
         y = np.array([0, 0, 0, 0])
         root = dt.build_tree(X, y)
         self.assertEqual(root.label, 0)
+
 
     def test_predict(self):
         dt = DecisionTree(pre_pruning='size')

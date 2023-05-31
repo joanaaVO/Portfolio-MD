@@ -19,7 +19,6 @@ class NaiveBayesTest(unittest.TestCase):
     
     
     def test_fit(self):
-                
         X = np.array([[1, 2], [3, 4], [5, 6]])
         y = np.array([0, 1, 0])
         nb = NaiveBayes()
@@ -34,7 +33,6 @@ class NaiveBayesTest(unittest.TestCase):
         
         
     def test_predict_returns_predictions(self):
-        
         X_test = np.array([[2, 3], [4, 5], [6, 7]])
         expected_predictions = np.array([0, 1, 1])
         nb = NaiveBayes()

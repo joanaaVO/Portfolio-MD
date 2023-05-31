@@ -6,7 +6,7 @@ sys.path.append('./TPC5/src')
 from apriori import Apriori
 from apriori import TransactionDataset
 
-class TestApriori(unittest.TestCase):
+class TestCaseApriori(unittest.TestCase):
     
     def test_init(self):
         transaction_dataset = TransactionDataset(transactions=[['A', 'B'], ['B', 'C'], ['A', 'C']])

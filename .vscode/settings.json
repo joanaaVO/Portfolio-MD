@@ -1,5 +1,6 @@
 {
     "python.analysis.extraPaths": [
-        "./TPC1"
+        "./TPC1",
+        "./TPC4/src"
     ]
 }

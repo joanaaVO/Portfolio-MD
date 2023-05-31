@@ -74,7 +74,7 @@ class TestCaseDataset(unittest.TestCase):
     def test_write_create_data_when_y_is_not_None(self):
         obj = Dataset(np.array([[1, 2], [3, 4]]), np.array([5, 6]))
         obj.features = ["Feature 1", "Feature 2"]
-        file_path = "test_file.csv"
+        file_path = "./TPC1/tests/test_file1.csv"
         obj.write(file_path)
         with open(file_path, 'r') as file:
             reader = csv.reader(file)
@@ -88,7 +88,7 @@ class TestCaseDataset(unittest.TestCase):
     def test_write_create_data_when_y_is_None(self):
         obj = Dataset(np.array([[1, 2], [3, 4]]), None)
         obj.features = ["Feature 1", "Feature 2"]
-        file_path = "./TPC1/tests/test_file.csv"
+        file_path = "./TPC1/tests/test_file2.csv"
         obj.write(file_path)
         with open(file_path, 'r') as file:
             reader = csv.reader(file)
