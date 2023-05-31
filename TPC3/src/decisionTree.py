@@ -2,9 +2,7 @@ import numpy as np
 import math
 import sys
 
-sys.path.append('./TPC1')
-
-
+sys.path.append('./TPC1/src')
 from dataset import Dataset 
 from sklearn.metrics import accuracy_score
    
@@ -39,7 +37,9 @@ class DecisionTrees:
     
     def __init__(self, max_depth=3, min_samples_split=2, min_samples_leaf=1, max_features=3, 
                 criterion='gini', pre_pruning='max_depth', post_pruning='pessimistic', threshold=5):
-
+        """
+        Initialize a DecisionTrees object with the specified parameters.
+        """
         self.max_depth = max_depth
         self.min_samples_split = min_samples_split
         self.min_samples_leaf = min_samples_leaf
@@ -54,6 +54,16 @@ class DecisionTrees:
         self.threshold = threshold
 
     def fit(self, X, y, X_val, y_val, depth=0):
+        """
+        Fit the decision tree model to the training data.
+
+        Args:
+            X (array): Training feature dataset.
+            y (array): Training target values.
+            X_val (array): Validation feature dataset.
+            y_val (array): Validation target values.
+            depth (int): Current depth of the tree. (default: 0)
+        """
         self.tree = self.build_tree(X, y, X_val, y_val, depth)
         if self.pre_pruning == 'size':
             self.size_pruning()
@@ -61,7 +71,11 @@ class DecisionTrees:
             self.tree = self.max_depth_pruning(self.tree, self.max_depth)
             self.update_internal_nodes()
 
-        # TO-DO: Add the post pruning functions
+        if self.post_pruning == 'pessimistic':
+            self.pessimistic_pruning(X_val, y_val)
+            
+        elif self.post_pruning == 'optimistic':
+            self.optimistic_pruning(X_val, y_val)
 
     def predict(self, X):
         if self.tree is None:
