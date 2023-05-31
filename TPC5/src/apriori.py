@@ -46,7 +46,7 @@ class TransactionDataset:
         return len(self.transactions)
 
 class Apriori:
-    def __init__(self, transaction_dataset, min_support, min_confidence):
+    def __init__(self, transaction_dataset=None, min_support=None, min_confidence=None):
         """
         A class to represent the Apriori algorithm.
 
