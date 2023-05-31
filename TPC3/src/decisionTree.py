@@ -147,7 +147,7 @@ class DecisionTree:
             sorted_y = y[sorted_indices]
 
             # Iterate over possible split points
-            for i in range(1, len(X)):
+            for i in range(1, len(sorted_X)):
                 if sorted_X[i, attribute] != sorted_X[i - 1, attribute]:
                     threshold = (sorted_X[i, attribute] + sorted_X[i - 1, attribute]) / 2
 
@@ -159,9 +159,12 @@ class DecisionTree:
                     right_y = sorted_y[right_mask]
 
                     # Calculate the information gain based on the split
+                    left_entropy = self.calculate_entropy(left_y)
+                    right_entropy = self.calculate_entropy(right_y)
+
                     information_gain = entropy - (
-                            len(left_y) / len(y) * self.calculate_entropy(left_y) +
-                            len(right_y) / len(y) * self.calculate_entropy(right_y)
+                        len(left_y) / len(y) * left_entropy +
+                        len(right_y) / len(y) * right_entropy
                     )
 
                     # Update the best split if the information gain is higher
@@ -214,6 +217,11 @@ class DecisionTree:
             sorted_X = X[sorted_indices]
             sorted_y = y[sorted_indices]
 
+            # Check if all attribute values are the same
+            if np.all(sorted_X[:, attribute] == sorted_X[0, attribute]):
+                # Return the attribute with any threshold
+                return attribute, sorted_X[0, attribute] + 1
+
             # Iterate over possible split points
             for i in range(1, len(X)):
                 if sorted_X[i, attribute] != sorted_X[i - 1, attribute]:
@@ -228,8 +236,8 @@ class DecisionTree:
 
                     # Calculate the Gini index based on the split
                     gini_split = (
-                            len(left_y) / len(y) * self.calculate_gini_index(left_y) +
-                            len(right_y) / len(y) * self.calculate_gini_index(right_y)
+                        len(left_y) / len(y) * self.calculate_gini_index(left_y) +
+                        len(right_y) / len(y) * self.calculate_gini_index(right_y)
                     )
 
                     # Calculate the Gini gain
@@ -241,6 +249,7 @@ class DecisionTree:
                         best_attribute = attribute
                         best_threshold = threshold
 
+        
         return best_attribute, best_threshold
 
 
@@ -340,19 +349,24 @@ class DecisionTree:
         return gain_ratio, None
 
 
-    def majority_vote(self, labels):
+
+    def majority_vote(self, labels, default_label=0):
         """
         Determine the majority label from the given labels.
 
         Parameters:
         - labels (array): The target labels of shape (n_samples,).
+        - default_label: The default label to return if the unique_labels array is empty (default: 0).
 
         Returns:
         - _type_: The majority label.
         """
         unique_labels, counts = np.unique(labels, return_counts=True)
+        if len(unique_labels) == 0:
+            return default_label
         majority_label = unique_labels[np.argmax(counts)]
         return majority_label
+
 
     def __repr__(self):
         """
@@ -381,25 +395,3 @@ class DecisionTree:
             left_subtree = self.print_tree(node.left, indent + '  | ')
             right_subtree = self.print_tree(node.right, indent + '  | ')
             return f'{attribute} <= {node.threshold}\n{indent}├─ True: {left_subtree}\n{indent}└─ False: {right_subtree}'
-
-
-if __name__ == '__main__':
-    
-    data = load_iris()
-    X = data.data
-    y = data.target
-
-    # Divida os dados em conjuntos de treinamento e teste
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-
-    # Create an instance of the DecisionTreeClassifier
-    dt = DecisionTree(attribute_selection='entropy', pre_pruning='size')
-
-    # Fit the decision tree to the training data
-    dt.fit(X_train, y_train)
-
-    # Make predictions on the test data
-    y_pred = dt.predict(X_test)
-
-    # Print the decision tree
-    print(dt)
