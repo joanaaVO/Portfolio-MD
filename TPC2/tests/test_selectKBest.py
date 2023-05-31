@@ -10,7 +10,7 @@ from f_classif import F_Classif
 from selectKBest import SelectKBest
 from f_regression import F_Regression
 
-class SelectKBestTestCase(unittest.TestCase):
+class TestCaseSelectKBest(unittest.TestCase):
     
     def test_init_raises_ValueError_when_k_is_negative(self):
         self.assertRaises(ValueError, SelectKBest, None, -1)

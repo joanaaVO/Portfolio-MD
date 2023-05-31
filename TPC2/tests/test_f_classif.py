@@ -8,7 +8,13 @@ from f_classif import F_Classif
 
 
 
-class F_ClassifTestCase(unittest.TestCase):
+class TestCaseF_Classif(unittest.TestCase):
+    
+    def test_init(self):
+        f_classif = F_Classif()
+        self.assertIsNone(f_classif.fvalues)
+        self.assertIsNone(f_classif.pvalues)
+    
     
     def test_fit_returns_F_Classif(self):
         X = np.array([[1, 2, 1, 3], [1, 1, 4, 3], [1, 1, 1, 3]])
@@ -18,6 +24,7 @@ class F_ClassifTestCase(unittest.TestCase):
         dataset = Dataset(X, y, features, label)
         f_classif = F_Classif()
         self.assertIsInstance(f_classif.fit(dataset), F_Classif)
+    
     
     def test_transform_returns_Dataset_object(self):
         X = np.array([[1, 2, 1, 3], [1, 1, 4, 3], [1, 1, 1, 3]])

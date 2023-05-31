@@ -1,9 +1,7 @@
+import sys
 import numpy as np
 from scipy.stats import f_oneway
-
-import sys
 sys.path.append('./TPC1/src')
-
 from dataset import Dataset
 
 class F_Classif:

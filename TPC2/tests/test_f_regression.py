@@ -6,12 +6,17 @@ sys.path.append('./TPC2/src')
 from dataset import Dataset
 from f_regression import F_Regression
 
-class F_RegressionTestCase(unittest.TestCase):
+class TestCaseF_Regression(unittest.TestCase):
     
     def test_init_raises_ValueError_when_alpha_is_invalid(self):
         self.assertRaises(ValueError, F_Regression, alpha=1.5)
         self.assertRaises(ValueError, F_Regression, alpha=-1)
-    
+        
+    def test_init_does_not_raise_ValueError_when_alpha_is_valid(self):
+        try:
+            F_Regression(alpha=0.05)
+        except ValueError:
+            self.fail("alpha must be between 0 and 1")
 
     def test_init_when_alpha_is_valid(self):
         f_regression = F_Regression()

@@ -8,10 +8,17 @@ from f_regression import F_Regression
 from variance_threshold import VarianceThreshold
 
 
-class VarianceThresholdTest(unittest.TestCase):
+class TestCaseVarianceThreshold(unittest.TestCase):
     
     def test_init_raises_ValueError_when_threshold_is_less_than_zero(self):
         self.assertRaises(ValueError, VarianceThreshold, -1)
+    
+    
+    def test_init_raises_ValueError_when_threshold_is_more_than_zero(self):
+        try:
+            VarianceThreshold(1)
+        except ValueError:
+            self.fail("VarianceThreshold() raised ValueError unexpectedly!")
     
     
     def test_init_when_threshold_is_valid(self):
