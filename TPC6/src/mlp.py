@@ -2,8 +2,18 @@ import numpy as np
 
 class MLP:
     
-    def __init__(self, dataset, hidden_nodes = 2, normalize = False):
-        self.X, self.y = dataset.getXy()
+    def __init__(self, X, y, hidden_nodes = 2, normalize = False):
+        """
+        Initialize the MLP model.
+
+        Args:
+            X (numpy.ndarray): Input features.
+            y (numpy.ndarray): Target labels.
+            hidden_nodes (int): Number of nodes in the hidden layer.
+            normalize (bool): Flag indicating whether to normalize the input features.
+        """
+        self.X = X
+        self.y = y
         self.X = np.hstack ( (np.ones([self.X.shape[0],1]), self.X ) )
         
         self.h = hidden_nodes
@@ -16,10 +26,26 @@ class MLP:
             self.normalized = False
 
     def setWeights(self, w1, w2):
+        """
+        Set the weights of the MLP model.
+
+        Args:
+            w1 (numpy.ndarray): Weights of the hidden layer.
+            w2 (numpy.ndarray): Weights of the output layer.
+        """
         self.W1 = w1
         self.W2 = w2   
 
     def predict(self, instance):
+        """
+        Make predictions using the MLP model.
+
+        Args:
+            instance (numpy.ndarray): Input instance for prediction.
+
+        Returns:
+            float: Predicted output.
+        """
         x = np.empty([self.X.shape[1]])        
         x[0] = 1
         x[1:] = np.array(instance[:self.X.shape[1]-1])
@@ -38,6 +64,15 @@ class MLP:
         return sigmoid(z3)
 
     def costFunction(self, weights = None):
+        """
+        Compute the cost function of the MLP model.
+
+        Args:
+            weights (numpy.ndarray): Weights of the MLP model.
+
+        Returns:
+            float: Cost of the model.
+        """
         if weights is not None:
             self.W1 = weights[:self.h * self.X.shape[1]].reshape([self.h, self.X.shape[1]])
             self.W2 = weights[self.h * self.X.shape[1]:].reshape([1, self.h+1])
@@ -52,6 +87,12 @@ class MLP:
         return res
 
     def build_model(self):
+        """
+        Build the MLP model using optimization.
+
+        Uses the BFGS optimization algorithm to find the optimal weights.
+
+        """
         from scipy import optimize
 
         size = self.h * self.X.shape[1] + self.h+1
@@ -64,11 +105,16 @@ class MLP:
         self.W2 = weights[self.h * self.X.shape[1]:].reshape([1, self.h+1])
 
     def normalize(self):
+        """
+        Normalize the input features of the MLP model.
+        """
         self.mu = np.mean(self.X[:,1:], axis = 0)
         self.X[:,1:] = self.X[:,1:] - self.mu
         self.sigma = np.std(self.X[:,1:], axis = 0)
         self.X[:,1:] = self.X[:,1:] / self.sigma
         self.normalized = True
 
+
+    
 def sigmoid(x):
   return 1 / (1 + np.exp(-x))
