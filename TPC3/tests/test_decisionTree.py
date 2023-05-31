@@ -6,26 +6,51 @@ sys.path.append('./datasets')
 sys.path.append('./TPC1/src')
 sys.path.append('./TPC3/src')
 from dataset import Dataset
-from decisionTree import DecisionTrees
+from decisionTree import DecisionTree
 
-class DecisionTreeTest(unittest.TestCase):
+class DecisionTree2Test(unittest.TestCase):
     
     def test_init(self):
-        dt = DecisionTrees()
-        self.assertEqual(dt.max_depth, 3)
-        self.assertEqual(dt.min_samples_split, 2)
-        self.assertEqual(dt.min_samples_leaf, 1)
-        self.assertEqual(dt.max_features, 3)
-        self.assertEqual(dt.criterion, 'gini')
-        self.assertEqual(dt.pre_pruning, 'max_depth')
-        self.assertEqual(dt.post_pruning, 'pessimistic')
-        self.assertIsNone(dt.tree)
-        self.assertEqual(dt.internal_nodes, [])
-        self.assertEqual(dt.leaf_nodes, [])
+        dt = DecisionTree()
+        self.assertEqual(dt.attribute_selection, 'entropy')
+        self.assertIsNone(dt.pre_pruning)
         self.assertIsNone(dt.root)
-        self.assertEqual(dt.threshold, 5)
+
+
+    def test_entropy(self):
+        dt = DecisionTree()
+        labels = np.array([0, 1, 1, 0, 1, 0, 0, 1, 1, 1])
+        unique_labels, counts = np.unique(labels, return_counts=True)
+        probabilities = counts / len(labels)
+        expected_entropy = -np.sum(probabilities * np.log2(probabilities))
+        calculated_entropy = dt.calculate_entropy(labels)
+        self.assertAlmostEqual(calculated_entropy, expected_entropy)
+        
+        
+    def test_gini_index(self):
+        dt = DecisionTree()
+        labels = np.array([0, 1, 1, 0, 1, 0, 0, 1, 1, 1])
+        unique_labels, counts = np.unique(labels, return_counts=True)
+        n_instances = float(sum(counts))
+        gini = 0.0
+        for count in counts:
+            proportion = count / n_instances
+            gini += proportion * (1.0 - proportion)
+        calculated_gini_index = dt.calculate_gini_index(labels)
+        self.assertAlmostEqual(calculated_gini_index, gini)
     
-    def test_fit_when_pre_prunning_is_equal_to_size(self):
+    
+    def test_gain_ratio(self):
+        dt = DecisionTree()
+        feature = np.array([1, 2, 3, 1, 2, 3])
+        labels = np.array([0, 1, 0, 1, 1, 0])
+
+        expected_gain_ratio = dt.gain_ratio(feature, labels)[0]
+
+        calculated_gain_ratio = dt.gain_ratio(feature, labels)[0]
+        self.assertAlmostEqual(calculated_gain_ratio, expected_gain_ratio)
+        
+        
         
     
 if __name__ == '__main__':
