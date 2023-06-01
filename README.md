@@ -1,5 +1,6 @@
 # Portfolio-MD
 
 ## Group Members:
-@alpereirinha
-@joanaaVO
+[@Anabela Pereira](https://github.com/alpereirinha)
+
+[@Joana Oliveira](https://github.com/joanaaVO)
