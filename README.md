@@ -21,3 +21,6 @@ No âmbito da unidade curricular Mineração de Dados foi proposta a realizaçã
 
 
 P.s.: Para cada algoritmo existe a pasta src onde se encontra o algoritmo desenvolvido e a pasta tests onde se encontram os testes unitários realizados.
+
+
+#### Nota final: 17.5 / 20
